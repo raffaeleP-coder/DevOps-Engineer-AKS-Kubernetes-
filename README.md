@@ -1,1 +1,0 @@
-# DevOps-Engineer-AKS-Kubernetes-
