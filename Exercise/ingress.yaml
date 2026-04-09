@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: devops-ingress
+  labels:
+    app: devops-exercise
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: devops.test
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: devops-service
+                port:
+                  number: 8080

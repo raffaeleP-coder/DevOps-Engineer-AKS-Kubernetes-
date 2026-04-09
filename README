@@ -1,0 +1,31 @@
+1. Create Docker file to package the application.
+    - minimal base image python:3.12-slim or alpine.
+    - Applicaion must not run as the root user.
+    - use gunicorn as the production WSGI server.
+
+2. Create YAML or Helm CHart for deployment
+    - Deployment 1 + replicas, incuding Resource Limits (CPU/MEMORY) and liveness/readiness probes
+    - Service A ClusterIP service to expose application internally on port 8080
+
+3. Access the application from your host machine's browser
+    - Use kubectl port-forward command to map a local port to the service or pod
+    - Validation: provide a screenshot or curl output showing a successful response from http://localhost:<your-port>
+
+4. Bonus Challenges (Optional)
+
+For extra credit, implement one or more of the following:
+
+Ingress Implementation: Configure an Ingress resource to map the hostname devops.test to your service. Include instructions for local DNS mapping.
+Monitoring & Observability: Demonstrate how you would monitor this application (e.g., Prometheus metrics, structured logging, or a simple sidecar container).
+
+
+Command Used:
+kubectl apply -f deployment.yaml 
+kubectl apply -f ingress.yaml   
+kubectl port-forward service/devops-service 8080:8080 
+
+I used python:3.12-slim because it is the official Python image and it keeps the container
+lean without making the environment unnecessarily fragile. 
+For security, I made sure the app does not run as root, enforced non-root execution again in Kubernetes,
+disabled privilege escalation, and dropped all capabilities.
+Since this service only needs to serve HTTP traffic on port 8080, anything beyond that would be unnecessary privilege.
