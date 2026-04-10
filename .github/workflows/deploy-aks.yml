@@ -65,6 +65,7 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           namespace: ${{ env.K8S_NAMESPACE }}
+          context: ./Exercise
           manifests: |
             deployment.yaml
             ingress.yaml
