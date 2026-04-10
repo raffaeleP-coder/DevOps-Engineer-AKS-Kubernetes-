@@ -1,0 +1,79 @@
+name: Build, Push to ACR, Deploy to AKS
+
+on:
+  push:
+    branches:
+      - azure-devops
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  actions: read
+
+env:
+  ACR_NAME: crdevopsexercise
+  ACR_LOGIN_SERVER: crdevopsexercise-dedgf6f4a0f7grdv.azurecr.io
+  IMAGE_NAME: devops-exercise
+  AKS_RESOURCE_GROUP: DevOps-Exercise
+  AKS_CLUSTER_NAME: aks-devops-exercise
+  K8S_NAMESPACE: default
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Azure login with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Login to ACR
+        run: az acr login --name $ACR_NAME
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+
+      - name: Set AKS context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: ${{ env.AKS_RESOURCE_GROUP }}
+          cluster-name: ${{ env.AKS_CLUSTER_NAME }}
+          admin: "true"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Deploy manifests to AKS
+        uses: Azure/k8s-deploy@v4
+        with:
+          namespace: ${{ env.K8S_NAMESPACE }}
+          manifests: |
+            deployment.yaml
+            ingress.yaml
+          images: |
+            ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          pull-images: false
+
+      - name: Check rollout
+        run: |
+          kubectl rollout status deployment/devops-app -n $K8S_NAMESPACE
+          kubectl get pods -n $K8S_NAMESPACE
+          kubectl get svc -n $K8S_NAMESPACE
+          kubectl get ingress -n $K8S_NAMESPACE
