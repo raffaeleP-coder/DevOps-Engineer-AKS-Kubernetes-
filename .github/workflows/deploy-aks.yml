@@ -39,7 +39,12 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-
+     
+      - name: Folder List
+        run: |
+         pwd
+         ls -a
+        
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
