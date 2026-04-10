@@ -65,10 +65,9 @@ jobs:
         uses: Azure/k8s-deploy@v4
         with:
           namespace: ${{ env.K8S_NAMESPACE }}
-          context: ./Exercise
           manifests: |
-            deployment.yaml
-            ingress.yaml
+            Exercise/deployment.yaml
+            Exercise/ingress.yaml
           images: |
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           pull-images: false
