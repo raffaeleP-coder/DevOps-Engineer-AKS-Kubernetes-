@@ -5,7 +5,7 @@ metadata:
   labels:
     app: devops-exercise
 spec:
-  ingressClassName: nginx
+  ingressClassName: webapprouting.kubernetes.azure.com
   rules:
     - host: devops.test
       http:
