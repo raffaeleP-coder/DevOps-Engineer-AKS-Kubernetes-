@@ -18,7 +18,7 @@ spec:
         runAsNonRoot: true
       containers:
         - name: app
-          image: devops-exercise:v1
+          image: crdevopsexercise-dedgf6f4a0f7grdv.azurecr.io/devops-exercise:v1
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
