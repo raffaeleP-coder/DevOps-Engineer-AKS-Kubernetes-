@@ -12,7 +12,7 @@ permissions:
   actions: read
 
 env:
-  ACR_NAME: crdevopsexercise
+  ACR_NAME: crdevopsexercise-dedgf6f4a0f7grdv.azurecr.io
   ACR_LOGIN_SERVER: crdevopsexercise-dedgf6f4a0f7grdv.azurecr.io
   IMAGE_NAME: devops-exercise
   AKS_RESOURCE_GROUP: DevOps-Exercise
