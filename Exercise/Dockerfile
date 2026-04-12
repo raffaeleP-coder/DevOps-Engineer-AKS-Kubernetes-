@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-RUN useradd -m devops
+RUN groupadd -g 10001 devops && useradd -u 10001 -g 10001 -m -s /usr/sbin/nologin devops
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
