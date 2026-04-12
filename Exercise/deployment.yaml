@@ -3,6 +3,8 @@ kind: Namespace
 metadata:
   name: devops-namespace
 
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
