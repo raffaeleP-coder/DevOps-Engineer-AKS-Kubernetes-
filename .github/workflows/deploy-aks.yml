@@ -17,7 +17,7 @@ env:
   IMAGE_NAME: devops-exercise
   AKS_RESOURCE_GROUP: DevOps-Exercise
   AKS_CLUSTER_NAME: aks-devops-exercise
-  K8S_NAMESPACE: default
+  K8S_NAMESPACE: devops-exercise
 
 jobs:
   build-push-deploy:
@@ -37,16 +37,19 @@ jobs:
       - name: Login to ACR
         run: az acr login --name $ACR_NAME
 
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-        
-      - name: Build and push image
+
+      - name: Build and push multi-platform image
         uses: docker/build-push-action@v6
         with:
           context: ./Exercise
           file: ./Exercise/Dockerfile
           push: true
-          platforms: linux/arm64
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
             ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
@@ -61,9 +64,15 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
 
+      - name: Ensure namespace exists
+        run: |
+          kubectl create namespace "$K8S_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Deploy manifests to AKS
         uses: Azure/k8s-deploy@v4
         with:
+          action: deploy
+          strategy: basic
           namespace: ${{ env.K8S_NAMESPACE }}
           manifests: |
             Exercise/deployment.yaml
@@ -75,6 +84,6 @@ jobs:
       - name: Check rollout
         run: |
           kubectl rollout status deployment/devops-app -n $K8S_NAMESPACE
-          kubectl get pods -n $K8S_NAMESPACE
+          kubectl get pods -n $K8S_NAMESPACE -o wide
           kubectl get svc -n $K8S_NAMESPACE
           kubectl get ingress -n $K8S_NAMESPACE
