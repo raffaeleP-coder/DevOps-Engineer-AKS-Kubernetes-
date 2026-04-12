@@ -17,7 +17,7 @@ env:
   IMAGE_NAME: devops-exercise
   AKS_RESOURCE_GROUP: DevOps-Exercise
   AKS_CLUSTER_NAME: aks-devops-exercise
-  K8S_NAMESPACE: devops-exercise
+  K8S_NAMESPACE: devops-namespace
 
 jobs:
   build-push-deploy:
